@@ -1,0 +1,8 @@
+frameworks/base/include/android_runtime/
+frameworks/base/include/utils/
+frameworks/base/include/binder/
+
+dalvik/libnativehelper/include/nativehelper/
+
+system/core/include/cutils/
+system/core/include/system/
