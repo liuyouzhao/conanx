@@ -33,19 +33,24 @@ var particalImg = new Image();
 
 var hTex = 0;
 var hParticalTex = 0;
+
 var soundReady = false;
 this.onloadresource = function(id) {
-    x.log_e("Sound Onload ? : " + id + ", " + soundId);
-    if(soundId == id) {
-        resource.PlaySound(soundId);
+    
+    //x.log_e("Sound Onload ? : " + id + ", " + soundId);
+    if(sounds[2] == id) {
+        resource.PlaySound(sounds[2]);
         soundReady = true;
-        x.log_e("Sound Onload: " + soundId);
+        //x.log_e("Sound Onload: " + soundId);
     }
     
 }
 
-var soundId = resource.LoadSoundResource("shortmp3.mp3");
-x.log_e("SoundID is: " + soundId);
+var sounds = [];
+sounds[0] = resource.LoadSoundResource("1.mp3");
+sounds[1] = resource.LoadSoundResource("2.mp3");
+sounds[2] = resource.LoadSoundResource("3.mp3");
+
 
 function loadTexture() {
     x.log_e("image onload......");
@@ -75,7 +80,7 @@ function loadTexture() {
     }
     
     img.src = "http://hujia-photo-family001.oss-cn-hangzhou.aliyuncs.com/zazaka.png";
-    particalImg.src = "http://hujia-photo-family001.oss-cn-hangzhou.aliyuncs.com/particles.png";
+    particalImg.src = "http://hujia-photo-family001.oss-cn-hangzhou.aliyuncs.com/zazaka.png";
 }
 
 function reloadTexture() {
@@ -154,10 +159,14 @@ function createPars(cx, cy) {
 	    partical_list[i].scale = Math.random() * 1.5 + 0.5;
 	    partical_list[i].dscale = (Math.random() - 0.5) * 2 * 0.1;
 	    partical_list[i].rot = Math.random() * PI * 2;
-	    partical_list[i].tx1 = (i % 4) / 4.0;
-	    partical_list[i].ty1 = (i % 4) / 4.0;
-	    partical_list[i].tx2 = partical_list[i].tx1 + 0.25;
-	    partical_list[i].ty2 = partical_list[i].ty1 + 0.25;
+        partical_list[i].tx1 = 0.0;
+        partical_list[i].ty1 = 0.0;
+        partical_list[i].tx2 = 1.0;
+        partical_list[i].ty2 = 1.0;
+	    //partical_list[i].tx1 = (i % 4) / 4.0;
+	    //partical_list[i].ty1 = (i % 4) / 4.0;
+	    //partical_list[i].tx2 = partical_list[i].tx1 + 0.25;
+	    //partical_list[i].ty2 = partical_list[i].ty1 + 0.25;
 	    //pObjects[i].drot = (Math.random() - 0.5) * 2 * 0.1;
     }
     return partical_list;
@@ -255,11 +264,42 @@ var FrameFunc = function() {
 	// Update the scene
 	for(var i = 0;i < MAX_OBJECTS; i++) {
 		pObjects[i].x+=pObjects[i].dx*dt + pObjects[i].px*dt;
-		if(pObjects[i].x>SCREEN_WIDTH || pObjects[i].x<0) pObjects[i].dx=-pObjects[i].dx;
+
+		if(pObjects[i].x>SCREEN_WIDTH || pObjects[i].x<0)
+        {
+            if(pObjects[i].x > SCREEN_WIDTH)
+            {
+                pObjects[i].x = SCREEN_WIDTH;
+            }
+            else if(pObjects[i].x < 0)
+            {
+                pObjects[i].x = 0;
+            }
+            pObjects[i].dx=-pObjects[i].dx;
+            pObjects[i].px = 0;
+        }
+
 		pObjects[i].y+=pObjects[i].dy*dt + pObjects[i].py*dt;
-		if(pObjects[i].y>SCREEN_HEIGHT || pObjects[i].y<0) pObjects[i].dy=-pObjects[i].dy;
+
+		if(pObjects[i].y>SCREEN_HEIGHT || pObjects[i].y<0)
+        {
+            if(pObjects[i].y > SCREEN_HEIGHT)
+            {
+                pObjects[i].y = SCREEN_HEIGHT;
+            }
+            else if(pObjects[i].y < 0)
+            {
+                pObjects[i].y = 0;
+            }
+            pObjects[i].dy=-pObjects[i].dy;
+            pObjects[i].py = 0;
+        }
+
 		pObjects[i].scale+=pObjects[i].dscale*dt;
-		if(pObjects[i].scale>2 || pObjects[i].scale<0.5) pObjects[i].dscale=-pObjects[i].dscale;
+
+		if(pObjects[i].scale>2 || pObjects[i].scale<0.5)
+            pObjects[i].dscale=-pObjects[i].dscale;
+
 		pObjects[i].rot+=pObjects[i].drot*dt;
 		
 		if(pObjects[i].px != 0.0) {
@@ -291,7 +331,9 @@ var FrameFunc = function() {
 		        }
 		    }
 		}
+
 	}
+
     for(var i = 0; i < parGroup.length; i ++) {
         if(parGroup[i]) {
             var pars = parGroup[i];
@@ -385,13 +427,17 @@ this.ontouchstart = function(ex, ey) {
         var dx = (x - ex) / Math.sqrt(d2);
         var dy = (y - ey) / Math.sqrt(d2);
         if(Math.sqrt(d2) <= 100) {
-           pObjects[i].px = dx * 20;
-		   pObjects[i].py = dy * 20;
+            pObjects[i].opx = pObjects[i].px;
+            pObjects[i].opy = pObjects[i].py;
+            pObjects[i].px = dx * 20;
+		    pObjects[i].py = dy * 20;
+
         }
 	}
 	
-	if(soundReady) {
-    	resource.PlaySound(soundId);
+	if(soundReady == true) {
+        var id = (Math.random() * 100) % 3;
+    	resource.PlaySound(sounds[parseInt(id)]);
 	}
 	
 	var pars = createPars(ex, ey);
